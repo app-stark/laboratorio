@@ -34,7 +34,7 @@ REQUIRED_COLUMNS = [
     "variacion_anual_2010_2017_pp",
 ]
 
-DEFAULT_FILE = Path(__file__).with_name("dataset_final_causas_GBD201.xlsx")
+DEFAULT_FILE = Path(__file__).with_name("dataset_final_causas_GBD2017.xlsx")
 
 
 def normalize_name(value):
