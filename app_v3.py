@@ -264,7 +264,7 @@ pct_range = st.sidebar.slider(
     step=0.1,
 )
 
-top_n = st.sidebar.slider("Causas mostradas en rankings", 5, 25, 12, key="filtro_top_n")
+top_n = st.sidebar.slider("Causas mostradas en rankings", 5, 25, 25, key="filtro_top_n")
 
 filtered = df[
     df["grupo_gbd_nivel1_es"].isin(selected_groups)
