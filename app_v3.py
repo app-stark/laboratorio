@@ -162,7 +162,7 @@ def interpretation_text(df):
     }
 
 
-st.title("🩺 Causas de mortalidad mundial — GBD 2017")
+st.title("🩺 Causas mortalidad mundial GBD 2017")
 
 with st.sidebar:
     st.header("Carga de datos")
