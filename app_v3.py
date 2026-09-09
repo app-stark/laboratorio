@@ -403,13 +403,7 @@ st.plotly_chart(fig_group, use_container_width=True)
 if ncd_mask.any():
     total_group_pct = group_df["participacion_pct"].sum()
     ncd_value = group_df.loc[ncd_mask, "participacion_pct"].sum()
-    st.caption(
-        f"Validación de composición: {total_group_pct:.2f}% del total. "
-        f"Enfermedades no transmisibles: {ncd_value:.2f}%. "
-        "El valor se obtiene como residual para completar el 100%, "
-        "dado que la suma directa de las causas de este grupo en el dataset "
-        "no representa toda su participación."
-    )
+
 
 # ============================================================
 # TAB 2 — EVOLUCIÓN
