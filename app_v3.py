@@ -165,7 +165,7 @@ def interpretation_text(df):
 st.title("🩺 Causas de mortalidad mundial — GBD 2017")
 
 with st.sidebar:
-    st.header("Carga de datos")
+    
     uploaded = st.file_uploader(
         "Sube el dataset",
         type=["xlsx", "xls", "csv"],
