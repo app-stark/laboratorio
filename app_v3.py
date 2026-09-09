@@ -167,7 +167,24 @@ st.markdown(
     "Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos."
 )
 
+with st.sidebar:
+    st.header("Carga de datos")
+    uploaded = st.file_uploader(
+        "Sube el dataset",
+        type=["xlsx", "xls", "csv"],
+        help="La aplicación detecta automáticamente la primera fila que contiene id_causa y se adapta al número de registros.",
+    )
 
+    if uploaded is not None:
+        file_bytes = uploaded.getvalue()
+        filename = uploaded.name
+    elif DEFAULT_FILE.exists():
+        file_bytes = DEFAULT_FILE.read_bytes()
+        filename = DEFAULT_FILE.name
+        st.info("Usando el dataset incluido en el proyecto.")
+    else:
+        st.warning("Sube un archivo XLSX, XLS o CSV para comenzar.")
+        st.stop()
 
 try:
     df, header_row = load_dataframe_from_bytes(file_bytes, filename)
