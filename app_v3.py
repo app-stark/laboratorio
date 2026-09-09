@@ -476,41 +476,51 @@ st.markdown(
         unsafe_allow_html=True,
 )
 
-# 4. Mayores aumentos y descensos
-st.subheader("4. Mayores aumentos y descensos")
-st.caption("Comparación conjunta de las causas con cambios positivos y negativos más destacados.")
+# 4. Cambios más relevantes
+st.subheader("4. Cambios más relevantes en las causas")
+st.caption("Compara las causas con las mayores variaciones entre 2010 y 2017. El tamaño del punto representa su participación en 2017.")
 
-inc = filtered.nlargest(min(5, len(filtered)), "variacion_pp").copy()
-dec = filtered.nsmallest(min(5, len(filtered)), "variacion_pp").copy()
+inc = filtered.nlargest(min(6, len(filtered)), "variacion_pp").copy()
+dec = filtered.nsmallest(min(6, len(filtered)), "variacion_pp").copy()
 change_df = pd.concat([inc, dec], ignore_index=True).drop_duplicates(subset=["id_causa"])
-change_df["tipo_cambio"] = change_df["variacion_pp"].apply(lambda x: "Aumento" if x > 0 else "Descenso")
+change_df["comportamiento"] = change_df["variacion_pp"].apply(lambda x: "Aumento" if x > 0 else "Descenso")
 change_df = change_df.sort_values("variacion_pp")
 
-fig_change = px.bar(
+fig_change = px.scatter(
     change_df,
     x="variacion_pp",
     y="causa_original",
-    orientation="h",
-    color="tipo_cambio",
+    size="participacion_pct",
+    color="comportamiento",
     text="variacion_pp",
-    hover_data={
-        "variacion_pp": ":.2f",
-        "participacion_pct": ":.2f",
-        "tendencia": True,
-        "tipo_cambio": True,
-    },
+    custom_data=["participacion_pct", "grupo_gbd_nivel1_es"],
     labels={
         "variacion_pp": "Variación 2010–2017 (puntos porcentuales)",
         "causa_original": "Causa",
-        "tipo_cambio": "Comportamiento",
-        "participacion_pct": "Participación 2017 (%)",
+        "comportamiento": "Comportamiento",
     },
-    title="Causas con las variaciones más significativas",
+    title="Causas con mayor cambio relativo",
 )
-fig_change.update_traces(texttemplate="%{text:.2f} pp", textposition="outside")
-fig_change.add_vline(x=0, line_dash="dash", annotation_text="Sin variación")
-fig_change.update_layout(height=620, margin=dict(l=20, r=90, t=70, b=30))
+fig_change.add_vline(x=0, line_dash="dash", annotation_text="Sin cambio", annotation_position="top")
+fig_change.update_traces(
+    texttemplate="%{text:.2f} pp",
+    textposition="middle right",
+    hovertemplate="<b>%{y}</b><br>Variación: %{x:.2f} pp<br>Participación 2017: %{customdata[0]:.2f}%<br>Grupo GBD: %{customdata[1]}<extra></extra>",
+)
+fig_change.update_layout(
+    height=650,
+    margin=dict(l=20, r=90, t=80, b=40),
+    xaxis=dict(zeroline=False),
+    yaxis=dict(categoryorder="array", categoryarray=change_df["causa_original"]),
+)
 st.plotly_chart(fig_change, use_container_width=True)
+
+best_inc = inc.iloc[0]
+best_dec = dec.iloc[0]
+st.markdown(
+    f'<div class="insight"><b>Lectura:</b> el mayor aumento observado es <b>{best_inc["causa_original"]}</b> ({best_inc["variacion_pp"]:+.2f} pp), mientras que el mayor descenso corresponde a <b>{best_dec["causa_original"]}</b> ({best_dec["variacion_pp"]:+.2f} pp).</div>',
+    unsafe_allow_html=True,
+)
 
 # 5. Distribución de tendencia
 st.subheader("5. Aumento vs. descenso")
