@@ -266,16 +266,6 @@ f_increase = filtered[filtered["tendencia"].str.lower().eq("aumento")]
 f_decrease = filtered[filtered["tendencia"].str.lower().eq("descenso")]
 
 # ---------- resumen ----------
-st.markdown('<div class="section-title">Panel ejecutivo</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="section-subtitle">Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017</div>',
-    unsafe_allow_html=True,
-)
-
 k1, k2 = st.columns(2)
 k1.metric("Causas filtradas", f"{len(filtered):,}")
 k2.metric("Mayor causa", f_top["causa_original"])
