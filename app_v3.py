@@ -179,9 +179,6 @@ with st.sidebar:
         file_bytes = DEFAULT_FILE.read_bytes()
         filename = DEFAULT_FILE.name
         st.info("Usando el dataset incluido en el proyecto.")
-    else:
-        st.warning("Sube un archivo XLSX, XLS o CSV para comenzar.")
-        st.stop()
 
 try:
     df, header_row = load_dataframe_from_bytes(file_bytes, filename)
