@@ -547,9 +547,12 @@ st.plotly_chart(fig_trend, use_container_width=True)
 # TAB 3 — CLASIFICACIÓN
 # ============================================================
 
-# 6. Categorías GBD nivel 2
-st.subheader("6. Mapa de categorías GBD nivel 2")
-st.caption("Permite identificar qué categorías específicas concentran mayor participación.")
+# 6. Categorías GBD nivel 2 — ranking horizontal
+st.subheader("6. Categorías GBD nivel 2 con mayor participación")
+st.caption(
+    "Ranking de las categorías específicas que concentran una mayor proporción "
+    "de las muertes, facilitando la comparación entre categorías."
+)
 
 cat_df = (
         filtered.groupby(
@@ -563,28 +566,58 @@ cat_df = (
         .sort_values("participacion_pct", ascending=False)
 )
 
-cat_top = cat_df.head(min(25, len(cat_df))).copy()
+# Mostrar las 15 categorías más relevantes para mantener una lectura limpia
+cat_top = cat_df.head(min(15, len(cat_df))).copy()
+cat_top = cat_top.sort_values("participacion_pct", ascending=True)
 
-fig_cat = px.treemap(
+fig_cat = px.bar(
         cat_top,
-        path=["grupo_gbd_nivel1_es", "categoria_gbd_nivel2_es"],
-        values="participacion_pct",
-        color="participacion_pct",
-        hover_data={"causas": True, "participacion_pct": ":.2f"},
+        x="participacion_pct",
+        y="categoria_gbd_nivel2_es",
+        orientation="h",
+        color="grupo_gbd_nivel1_es",
+        text="participacion_pct",
+        custom_data=["grupo_gbd_nivel1_es", "causas"],
         labels={
-            "participacion_pct": "Participación (%)",
-            "causas": "Número de causas",
+            "participacion_pct": "Participación en las muertes (%)",
+            "categoria_gbd_nivel2_es": "Categoría GBD nivel 2",
+            "grupo_gbd_nivel1_es": "Grupo GBD nivel 1",
         },
-        title="Categorías GBD nivel 2 con mayor participación",
+        title="Top 15 categorías GBD nivel 2 por participación",
 )
-fig_cat.update_layout(height=650, margin=dict(l=10, r=10, t=70, b=10))
+
+fig_cat.update_traces(
+        texttemplate="%{text:.2f}%",
+        textposition="outside",
+        hovertemplate=(
+            "<b>%{y}</b><br>"
+            "Participación: %{x:.2f}%<br>"
+            "Grupo GBD: %{customdata[0]}<br>"
+            "Número de causas: %{customdata[1]}"
+            "<extra></extra>"
+        ),
+)
+
+fig_cat.update_layout(
+        height=650,
+        margin=dict(l=20, r=90, t=70, b=30),
+        yaxis=dict(categoryorder="array", categoryarray=cat_top["categoria_gbd_nivel2_es"]),
+        legend_title_text="Grupo GBD nivel 1",
+)
+
 st.plotly_chart(fig_cat, use_container_width=True)
 
-st.markdown(
-        '<div class="insight"><b>Valor analítico:</b> esta vista permite pasar del ranking individual a una lectura '
-        'estructural del dataset, identificando categorías GBD que agrupan varias causas relevantes.</div>',
+if not cat_df.empty:
+    top_category = cat_df.iloc[0]
+    top_5_categories = cat_df.head(min(5, len(cat_df)))["participacion_pct"].sum()
+
+    st.markdown(
+        f'<div class="insight"><b>Hallazgo:</b> la categoría con mayor participación es '
+        f'<b>{top_category["categoria_gbd_nivel2_es"]}</b>, con '
+        f'<b>{top_category["participacion_pct"]:.2f}%</b> de las muertes representadas. '
+        f'Las 5 categorías principales concentran <b>{top_5_categories:.2f}%</b> del total.</div>',
         unsafe_allow_html=True,
-)
+    )
 
 st.subheader("Tabla de causas seleccionadas")
 table_cols = [
