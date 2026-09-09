@@ -162,9 +162,7 @@ def interpretation_text(df):
     }
 
 
-st.title("🩺 Causas de mortalidad mundial — GBD 2017")
 
-ctx = interpretation_text(df)
 
 # ============================================================
 # PANEL DE VISUALIZACIÓN PROFESIONAL
