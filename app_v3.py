@@ -163,9 +163,6 @@ def interpretation_text(df):
 
 
 st.title("🩺 Causas de mortalidad mundial — GBD 2017")
-st.markdown(
-    "Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos."
-)
 
 with st.sidebar:
     st.header("Carga de datos")
@@ -194,19 +191,6 @@ except Exception as e:
 
 ctx = interpretation_text(df)
 
-# ----------------------------
-# KPIs
-# ----------------------------
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Causas analizadas", f"{len(df):,}")
-c2.metric("Principal causa", ctx["top"])
-c3.metric("Participación principal", f"{ctx['top_pct']:.2f}%")
-c4.metric("Top 10 causas", f"{ctx['top10_pct']:.2f}%")
-
-st.caption(
-    f"Encabezados detectados automáticamente en la fila {header_row + 1}. "
-    f"Registros válidos procesados: {len(df)}."
-)
 
 # ============================================================
 # PANEL DE VISUALIZACIÓN PROFESIONAL
@@ -282,27 +266,6 @@ f_top10 = filtered.nlargest(min(10, len(filtered)), "participacion_pct")
 f_increase = filtered[filtered["tendencia"].str.lower().eq("aumento")]
 f_decrease = filtered[filtered["tendencia"].str.lower().eq("descenso")]
 
-# ---------- resumen ----------
-st.markdown('<div class="section-title">Panel ejecutivo</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017.</div>',
-    unsafe_allow_html=True,
-)
-
-k1, k2, k3, k4, k5 = st.columns(5)
-k1.metric("Causas filtradas", f"{len(filtered):,}")
-k2.metric("Mayor causa", f_top["causa_original"])
-k3.metric("Participación máxima", f"{f_top['participacion_pct']:.2f}%")
-k4.metric("En aumento", f"{len(f_increase):,}")
-k5.metric("En descenso", f"{len(f_decrease):,}")
-
-st.caption(
-    f"Encabezados detectados automáticamente en la fila {header_row + 1}. "
-    f"Registros válidos procesados: {len(df)} | Registros tras filtros: {len(filtered)}."
-)
-
-st.markdown("## 📊 Visualizaciones principales")
-st.caption("Las seis gráficas están visibles en una sola página para facilitar la lectura, comparación y evaluación del análisis.")
 
 # ============================================================
 # TAB 1 — PANORAMA
