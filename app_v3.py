@@ -354,14 +354,41 @@ st.markdown(
 
 # 2. Composición por grandes grupos
 st.subheader("2. Composición de las muertes por grupo GBD")
+
+# Los tres grupos GBD de nivel 1 son categorías exhaustivas:
+# Enfermedades no transmisibles + CMNN + Lesiones = 100%
+# En el dataset cargado, la suma directa de las causas de ENT queda
+# incompleta, mientras que CMNN y Lesiones sí conservan su participación.
+# Por ello, para esta gráfica se calcula ENT como el porcentaje residual
+# necesario para completar el 100% de la mortalidad.
 group_df = (
         filtered.groupby("grupo_gbd_nivel1_es", as_index=False)
         .agg(
-            participacion_pct=("participacion_pct", "sum"),
+            participacion_observada=("participacion_pct", "sum"),
             causas=("id_causa", "count"),
         )
-        .sort_values("participacion_pct", ascending=False)
 )
+
+# Identifica el grupo de enfermedades no transmisibles
+ncd_mask = group_df["grupo_gbd_nivel1_es"].astype(str).str.contains(
+    "no transmisibles", case=False, na=False
+)
+
+if ncd_mask.any():
+    otros_pct = group_df.loc[~ncd_mask, "participacion_observada"].sum()
+    ncd_residual = max(0.0, 100.0 - otros_pct)
+
+    group_df.loc[ncd_mask, "participacion_pct"] = ncd_residual
+
+    # Conserva los demás grupos con sus valores observados
+    group_df.loc[~ncd_mask, "participacion_pct"] = group_df.loc[
+        ~ncd_mask, "participacion_observada"
+    ]
+else:
+    # Si el dataset no contiene ENT, mantiene el cálculo original
+    group_df["participacion_pct"] = group_df["participacion_observada"]
+
+group_df = group_df.sort_values("participacion_pct", ascending=False)
 
 fig_group = px.bar(
         group_df,
@@ -369,20 +396,41 @@ fig_group = px.bar(
         y="participacion_pct",
         text="participacion_pct",
         color="grupo_gbd_nivel1_es",
-        custom_data=["causas"],
+        custom_data=["causas", "participacion_observada"],
         labels={
             "grupo_gbd_nivel1_es": "Grupo GBD nivel 1",
-            "participacion_pct": "Participación acumulada (%)",
+            "participacion_pct": "Participación de las muertes (%)",
         },
         title="¿Qué grandes grupos explican una mayor proporción de las muertes?",
 )
 fig_group.update_traces(
         texttemplate="%{text:.2f}%",
         textposition="outside",
-        hovertemplate="<b>%{x}</b><br>Participación: %{y:.2f}%<br>Causas: %{customdata[0]}<extra></extra>",
+        hovertemplate=(
+            "<b>%{x}</b><br>"
+            "Participación: %{y:.2f}%<br>"
+            "Causas: %{customdata[0]}<br>"
+            "Participación observada en dataset: %{customdata[1]:.2f}%"
+            "<extra></extra>"
+        ),
 )
-fig_group.update_layout(height=470, showlegend=False, margin=dict(l=20, r=30, t=70, b=80))
+fig_group.update_layout(
+    height=470,
+    showlegend=False,
+    margin=dict(l=20, r=30, t=70, b=80)
+)
 st.plotly_chart(fig_group, use_container_width=True)
+
+if ncd_mask.any():
+    total_group_pct = group_df["participacion_pct"].sum()
+    ncd_value = group_df.loc[ncd_mask, "participacion_pct"].sum()
+    st.caption(
+        f"Validación de composición: {total_group_pct:.2f}% del total. "
+        f"Enfermedades no transmisibles: {ncd_value:.2f}%. "
+        "El valor se obtiene como residual para completar el 100%, "
+        "dado que la suma directa de las causas de este grupo en el dataset "
+        "no representa toda su participación."
+    )
 
 # ============================================================
 # TAB 2 — EVOLUCIÓN
