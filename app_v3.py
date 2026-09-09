@@ -280,11 +280,6 @@ k1, k2 = st.columns(2)
 k1.metric("Causas filtradas", f"{len(filtered):,}")
 k2.metric("Mayor causa", f_top["causa_original"])
 
-st.caption(
-    f"Encabezados detectados automáticamente en la fila {header_row + 1}. "
-    f"Registros válidos procesados: {len(df)} | Registros tras filtros: {len(filtered)}."
-)
-
 st.markdown("## 📊 Visualizaciones principales")
 st.caption("Las seis gráficas están visibles en una sola página para facilitar la lectura, comparación y evaluación del análisis.")
 
