@@ -164,6 +164,33 @@ def interpretation_text(df):
 
 st.title("🩺 Causas de mortalidad mundial — GBD 2017")
 
+with st.sidebar:
+    st.header("Carga de datos")
+    uploaded = st.file_uploader(
+        "Sube el dataset",
+        type=["xlsx", "xls", "csv"],
+        help="La aplicación detecta automáticamente la primera fila que contiene id_causa y se adapta al número de registros.",
+    )
+
+    if uploaded is not None:
+        file_bytes = uploaded.getvalue()
+        filename = uploaded.name
+    elif DEFAULT_FILE.exists():
+        file_bytes = DEFAULT_FILE.read_bytes()
+        filename = DEFAULT_FILE.name
+        st.info("Usando el dataset incluido en el proyecto.")
+    else:
+        st.warning("Sube un archivo XLSX, XLS o CSV para comenzar.")
+        st.stop()
+
+try:
+    df, header_row = load_dataframe_from_bytes(file_bytes, filename)
+except Exception as e:
+    st.error(f"No fue posible procesar el archivo: {e}")
+    st.stop()
+
+ctx = interpretation_text(df)
+
 # ============================================================
 # PANEL DE VISUALIZACIÓN PROFESIONAL
 # ============================================================
@@ -239,6 +266,16 @@ f_increase = filtered[filtered["tendencia"].str.lower().eq("aumento")]
 f_decrease = filtered[filtered["tendencia"].str.lower().eq("descenso")]
 
 # ---------- resumen ----------
+st.markdown('<div class="section-title">Panel ejecutivo</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-subtitle">Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017</div>',
+    unsafe_allow_html=True,
+)
+
 k1, k2 = st.columns(2)
 k1.metric("Causas filtradas", f"{len(filtered):,}")
 k2.metric("Mayor causa", f_top["causa_original"])
