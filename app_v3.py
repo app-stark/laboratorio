@@ -274,6 +274,10 @@ st.markdown(
     '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017.</div>',
     unsafe_allow_html=True,
 )
+st.markdown(
+    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017.</div>',
+    unsafe_allow_html=True,
+)
 
 k1, k2, k3, k4, k5 = st.columns(5)
 k1.metric("Causas filtradas", f"{len(filtered):,}")
