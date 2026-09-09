@@ -164,24 +164,6 @@ def interpretation_text(df):
 
 st.title("🩺 Causas de mortalidad mundial — GBD 2017")
 
-with st.sidebar:
-    uploaded = st.file_uploader(
-    )
-
-    if uploaded is not None:
-        file_bytes = uploaded.getvalue()
-        filename = uploaded.name
-    elif DEFAULT_FILE.exists():
-        file_bytes = DEFAULT_FILE.read_bytes()
-        filename = DEFAULT_FILE.name
-
-
-try:
-    df, header_row = load_dataframe_from_bytes(file_bytes, filename)
-except Exception as e:
-    st.error(f"No fue posible procesar el archivo: {e}")
-    st.stop()
-
 ctx = interpretation_text(df)
 
 # ============================================================
