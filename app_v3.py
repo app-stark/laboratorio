@@ -168,6 +168,15 @@ st.markdown(
 )
 
 
+
+try:
+    df, header_row = load_dataframe_from_bytes(file_bytes, filename)
+except Exception as e:
+    st.error(f"No fue posible procesar el archivo: {e}")
+    st.stop()
+
+ctx = interpretation_text(df)
+
 # ----------------------------
 # KPIs
 # ----------------------------
