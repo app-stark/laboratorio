@@ -178,7 +178,7 @@ with st.sidebar:
     elif DEFAULT_FILE.exists():
         file_bytes = DEFAULT_FILE.read_bytes()
         filename = DEFAULT_FILE.name
-        st.info("Usando el dataset incluido en el proyecto.")
+
 
 try:
     df, header_row = load_dataframe_from_bytes(file_bytes, filename)
