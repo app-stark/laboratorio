@@ -201,9 +201,6 @@ st.markdown("""
 st.sidebar.header("Filtros interactivos")
 
 
-selected_groups = st.sidebar.multiselect(
-    "Grupo GBD nivel 1", groups, default=groups
-)
 
 trends = sorted(df["tendencia"].dropna().unique())
 selected_trends = st.sidebar.multiselect(
