@@ -522,36 +522,65 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Distribución de tendencia
-st.subheader("5. Aumento vs. descenso")
+# 5. Comparación clara de tendencia
+st.subheader("5. ¿Cuántas causas aumentaron y cuántas disminuyeron?")
+st.caption("Esta gráfica muestra directamente la cantidad de causas en cada tendencia, haciendo más fácil comparar aumento y descenso.")
+
 trend_df = (
-        filtered.groupby("tendencia", as_index=False)
-        .agg(
-            causas=("id_causa", "count"),
-            participacion_pct=("participacion_pct", "sum"),
-        )
+    filtered.groupby("tendencia", as_index=False)
+    .agg(causas=("id_causa", "count"))
 )
 
+# Orden lógico: aumento primero y descenso después.
+orden_tendencia = ["Aumento", "Descenso"]
+trend_df["orden"] = trend_df["tendencia"].apply(
+    lambda x: orden_tendencia.index(x) if x in orden_tendencia else len(orden_tendencia)
+)
+trend_df = trend_df.sort_values("orden").drop(columns="orden")
+
 fig_trend = px.bar(
-        trend_df,
-        x="tendencia",
-        y="participacion_pct",
-        text="participacion_pct",
-        color="tendencia",
-        custom_data=["causas"],
-        labels={
-            "tendencia": "Tendencia",
-            "participacion_pct": "Participación acumulada (%)",
-        },
-        title="Participación acumulada según la tendencia",
+    trend_df,
+    x="tendencia",
+    y="causas",
+    text="causas",
+    color="tendencia",
+    labels={
+        "tendencia": "Tendencia",
+        "causas": "Número de causas",
+    },
+    title="Número de causas según su tendencia (2010–2017)",
 )
+
 fig_trend.update_traces(
-        texttemplate="%{text:.2f}%",
-        textposition="outside",
-        hovertemplate="<b>%{x}</b><br>Participación: %{y:.2f}%<br>Número de causas: %{customdata[0]}<extra></extra>",
+    texttemplate="%{text}",
+    textposition="outside",
+    hovertemplate="<b>%{x}</b><br>Número de causas: %{y}<extra></extra>",
 )
-fig_trend.update_layout(height=450, showlegend=False, margin=dict(l=20, r=30, t=70, b=40))
+
+fig_trend.update_layout(
+    height=450,
+    showlegend=False,
+    margin=dict(l=20, r=30, t=70, b=40),
+    yaxis=dict(
+        title="Número de causas",
+        rangemode="tozero",
+    ),
+)
+
 st.plotly_chart(fig_trend, use_container_width=True)
+
+total_tendencias = trend_df["causas"].sum()
+if total_tendencias > 0:
+    aumento = trend_df.loc[trend_df["tendencia"].str.lower().eq("aumento"), "causas"].sum()
+    descenso = trend_df.loc[trend_df["tendencia"].str.lower().eq("descenso"), "causas"].sum()
+
+    st.markdown(
+        f'<div class="insight"><b>Lectura:</b> de las <b>{total_tendencias}</b> causas '
+        f'analizadas, <b>{aumento}</b> presentan aumento y <b>{descenso}</b> presentan descenso '
+        f'entre 2010 y 2017.</div>',
+        unsafe_allow_html=True,
+    )
+
 
 # ============================================================
 # TAB 3 — CLASIFICACIÓN
