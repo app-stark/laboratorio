@@ -200,7 +200,7 @@ st.markdown("""
 # ---------- filtros ----------
 st.sidebar.header("Filtros interactivos")
 
-groups = sorted(df["grupo_gbd_nivel1_es"].dropna().unique())
+
 selected_groups = st.sidebar.multiselect(
     "Grupo GBD nivel 1", groups, default=groups
 )
