@@ -161,12 +161,6 @@ def interpretation_text(df):
         "decrease": len(decrease),
     }
 
-
-st.title("🩺 Causas de mortalidad mundial — GBD 2017")
-st.markdown(
-    "Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos."
-)
-
 with st.sidebar:
     st.header("Carga de datos")
     uploaded = st.file_uploader(
@@ -272,7 +266,8 @@ f_decrease = filtered[filtered["tendencia"].str.lower().eq("descenso")]
 # ---------- resumen ----------
 st.markdown('<div class="section-title">Panel ejecutivo</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017.</div>',
+    '<div class="section-subtitle">Laboratorio de limpieza, preparación, enriquecimiento y visualización de datos</div>',
+    '<div class="section-subtitle">Explora las causas de muerte de 2017, su peso relativo y la variación observada entre 2010 y 2017</div>',
     unsafe_allow_html=True,
 )
 
