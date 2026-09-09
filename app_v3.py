@@ -164,29 +164,17 @@ def interpretation_text(df):
 
 st.title("🩺 Causas mortalidad mundial GBD 2017")
 
-with st.sidebar:
-    st.header("")
-    uploaded = st.file_uploader(
-        "",
-        type=["xlsx", "xls", "csv"],
-        help="La aplicación detecta automáticamente la primera fila que contiene id_causa y se adapta al número de registros.",
-    )
-
-    if uploaded is not None:
-        file_bytes = uploaded.getvalue()
-        filename = uploaded.name
-    elif DEFAULT_FILE.exists():
-        file_bytes = DEFAULT_FILE.read_bytes()
-        filename = DEFAULT_FILE.name
-        
-    else:
-        st.warning("Sube un archivo XLSX, XLS o CSV para comenzar.")
-        st.stop()
+# El dataset se carga directamente desde el archivo incluido en el proyecto.
+# Ya no se muestra ninguna opción para cargar archivos desde la interfaz.
+if not DEFAULT_FILE.exists():
+    st.error(f"No se encontró el dataset incluido: {DEFAULT_FILE.name}")
+    st.stop()
 
 try:
-    df, header_row = load_dataframe_from_bytes(file_bytes, filename)
+    file_bytes = DEFAULT_FILE.read_bytes()
+    df, header_row = load_dataframe_from_bytes(file_bytes, DEFAULT_FILE.name)
 except Exception as e:
-    st.error(f"No fue posible procesar el archivo: {e}")
+    st.error(f"No fue posible procesar el dataset incluido: {e}")
     st.stop()
 
 ctx = interpretation_text(df)
