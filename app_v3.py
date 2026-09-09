@@ -522,65 +522,67 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Comparación clara de tendencia
-st.subheader("5. ¿Cuántas causas aumentaron y cuántas disminuyeron?")
-st.caption("Esta gráfica muestra directamente la cantidad de causas en cada tendencia, haciendo más fácil comparar aumento y descenso.")
-
-trend_df = (
-    filtered.groupby("tendencia", as_index=False)
-    .agg(causas=("id_causa", "count"))
+# 5. Distribución estadística del cambio
+st.subheader("5. ¿Cómo se distribuyó el cambio entre 2010 y 2017?")
+st.caption(
+    "El diagrama de caja permite comparar la variación de las causas, "
+    "identificar el cambio típico y detectar valores extremos."
 )
 
-# Orden lógico: aumento primero y descenso después.
-orden_tendencia = ["Aumento", "Descenso"]
-trend_df["orden"] = trend_df["tendencia"].apply(
-    lambda x: orden_tendencia.index(x) if x in orden_tendencia else len(orden_tendencia)
-)
-trend_df = trend_df.sort_values("orden").drop(columns="orden")
+trend_order = ["Aumento", "Descenso"]
+box_df = filtered.copy()
+box_df["tendencia"] = box_df["tendencia"].str.strip().str.capitalize()
 
-fig_trend = px.bar(
-    trend_df,
+fig_trend = px.box(
+    box_df,
     x="tendencia",
-    y="causas",
-    text="causas",
+    y="variacion_pp",
     color="tendencia",
+    points="all",
+    hover_name="causa_original",
+    hover_data={
+        "variacion_pp": ":.2f",
+        "participacion_pct": ":.2f",
+        "grupo_gbd_nivel1_es": True,
+        "tendencia": False,
+    },
+    category_orders={"tendencia": trend_order},
     labels={
         "tendencia": "Tendencia",
-        "causas": "Número de causas",
+        "variacion_pp": "Variación 2010–2017 (puntos porcentuales)",
     },
-    title="Número de causas según su tendencia (2010–2017)",
+    title="Distribución de la variación de las causas",
 )
 
-fig_trend.update_traces(
-    texttemplate="%{text}",
-    textposition="outside",
-    hovertemplate="<b>%{x}</b><br>Número de causas: %{y}<extra></extra>",
+fig_trend.add_hline(
+    y=0,
+    line_dash="dash",
+    annotation_text="Sin cambio",
+    annotation_position="top right",
 )
 
 fig_trend.update_layout(
-    height=450,
+    height=520,
     showlegend=False,
-    margin=dict(l=20, r=30, t=70, b=40),
-    yaxis=dict(
-        title="Número de causas",
-        rangemode="tozero",
-    ),
+    margin=dict(l=20, r=30, t=75, b=40),
 )
 
 st.plotly_chart(fig_trend, use_container_width=True)
 
-total_tendencias = trend_df["causas"].sum()
-if total_tendencias > 0:
-    aumento = trend_df.loc[trend_df["tendencia"].str.lower().eq("aumento"), "causas"].sum()
-    descenso = trend_df.loc[trend_df["tendencia"].str.lower().eq("descenso"), "causas"].sum()
+median_inc = box_df.loc[
+    box_df["tendencia"].eq("Aumento"), "variacion_pp"
+].median()
+median_dec = box_df.loc[
+    box_df["tendencia"].eq("Descenso"), "variacion_pp"
+].median()
 
-    st.markdown(
-        f'<div class="insight"><b>Lectura:</b> de las <b>{total_tendencias}</b> causas '
-        f'analizadas, <b>{aumento}</b> presentan aumento y <b>{descenso}</b> presentan descenso '
-        f'entre 2010 y 2017.</div>',
-        unsafe_allow_html=True,
-    )
-
+st.markdown(
+    f'<div class="insight"><b>Lectura:</b> la mediana de las causas en aumento es '
+    f'<b>{median_inc:+.2f} pp</b>, mientras que la mediana de las causas en descenso es '
+    f'<b>{median_dec:+.2f} pp</b>. Los puntos individuales permiten identificar causas '
+    f'con cambios especialmente altos o bajos.</div>',
+    unsafe_allow_html=True,
+)
 
 # ============================================================
 # TAB 3 — CLASIFICACIÓN
