@@ -276,12 +276,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-k1, k2, k3, k4, k5 = st.columns(5)
+k1, k2 = st.columns(2)
 k1.metric("Causas filtradas", f"{len(filtered):,}")
 k2.metric("Mayor causa", f_top["causa_original"])
-k3.metric("Participación máxima", f"{f_top['participacion_pct']:.2f}%")
-k4.metric("En aumento", f"{len(f_increase):,}")
-k5.metric("En descenso", f"{len(f_decrease):,}")
 
 st.caption(
     f"Encabezados detectados automáticamente en la fila {header_row + 1}. "
