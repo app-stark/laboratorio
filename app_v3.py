@@ -194,20 +194,6 @@ except Exception as e:
 
 ctx = interpretation_text(df)
 
-# ----------------------------
-# KPIs
-# ----------------------------
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Causas analizadas", f"{len(df):,}")
-c2.metric("Principal causa", ctx["top"])
-c3.metric("Participación principal", f"{ctx['top_pct']:.2f}%")
-c4.metric("Top 10 causas", f"{ctx['top10_pct']:.2f}%")
-
-st.caption(
-    f"Encabezados detectados automáticamente en la fila {header_row + 1}. "
-    f"Registros válidos procesados: {len(df)}."
-)
-
 # ============================================================
 # PANEL DE VISUALIZACIÓN PROFESIONAL
 # ============================================================
