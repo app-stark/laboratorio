@@ -372,6 +372,26 @@ fig_group.update_layout(
 )
 st.plotly_chart(fig_group, use_container_width=True)
 
+# Lectura de la composición por grandes grupos.
+if not group_df.empty:
+    top_group = group_df.iloc[0]
+    if len(group_df) > 1:
+        second_group = group_df.iloc[1]
+        hallazgo_grupos = (
+            f'<div class="insight"><b>Hallazgo:</b> el grupo <b>{top_group["grupo_gbd_nivel1_es"]}</b> '
+            f'concentra la mayor proporción, con <b>{top_group["participacion_pct"]:.2f}%</b> de las '
+            f'muertes representadas. Le sigue <b>{second_group["grupo_gbd_nivel1_es"]}</b> con '
+            f'<b>{second_group["participacion_pct"]:.2f}%</b>. '
+            f'En conjunto, estos grupos permiten identificar qué grandes áreas de enfermedad '
+            f'tienen mayor peso dentro de la mortalidad analizada.</div>'
+        )
+    else:
+        hallazgo_grupos = (
+            f'<div class="insight"><b>Hallazgo:</b> el grupo '
+            f'<b>{top_group["grupo_gbd_nivel1_es"]}</b> representa '
+            f'<b>{top_group["participacion_pct"]:.2f}%</b> de las muertes representadas.</div>'
+        )
+    st.markdown(hallazgo_grupos, unsafe_allow_html=True)
 
 
 # ============================================================
@@ -612,17 +632,61 @@ table_cols = [
         "grupo_gbd_nivel1_es",
         "categoria_gbd_nivel2_es",
 ]
-table = filtered[table_cols].sort_values("ranking_calculado").copy()
-table.columns = [
-        "Ranking",
-        "Causa",
-        "Participación (%)",
-        "Variación (pp)",
-        "Tendencia",
-        "Grupo GBD",
-        "Categoría GBD nivel 2",
+# El ranking de la tabla se recalcula sobre el conjunto actualmente filtrado.
+# Así, el primer registro visible comienza en 1 y el orden responde a la selección del usuario.
+table = filtered[table_cols].copy()
+table["ranking_filtrado"] = (
+    table["participacion_pct"]
+    .rank(method="min", ascending=False)
+    .astype(int)
+)
+
+table = table.sort_values(
+    ["ranking_filtrado", "causa_original"]
+).copy()
+
+table = table[
+    [
+        "ranking_filtrado",
+        "causa_original",
+        "participacion_pct",
+        "variacion_pp",
+        "tendencia",
+        "grupo_gbd_nivel1_es",
+        "categoria_gbd_nivel2_es",
+    ]
 ]
-st.dataframe(table, use_container_width=True, hide_index=True)
+
+table.columns = [
+    "Ranking",
+    "Causa",
+    "Participación 2017 (%)",
+    "Variación 2010–2017 (pp)",
+    "Tendencia",
+    "Grupo GBD nivel 1",
+    "Categoría GBD nivel 2",
+]
+
+st.dataframe(
+    table,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Ranking": st.column_config.NumberColumn(
+            "Ranking",
+            help="Posición de la causa dentro de los registros que cumplen los filtros actuales.",
+            format="%d",
+        ),
+        "Participación 2017 (%)": st.column_config.NumberColumn(
+            "Participación 2017 (%)",
+            format="%.2f%%",
+        ),
+        "Variación 2010–2017 (pp)": st.column_config.NumberColumn(
+            "Variación 2010–2017 (pp)",
+            format="%+.2f",
+        ),
+    },
+)
 
 
 # ---------- descarga ----------
